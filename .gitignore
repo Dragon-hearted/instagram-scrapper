@@ -7,3 +7,4 @@ dist/
 .env
 .env.*
 !.env.sample
+cookies.json
