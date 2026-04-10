@@ -1,8 +1,8 @@
 {
   "name": "adcelerate-instagram-scrapper",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Instagram content scraper that extracts posts, reels, and profile data from Instagram URLs",
+  "description": "Instagram content scraper using authenticated session-based API access with browser login support",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
@@ -11,7 +11,7 @@
     "check": "bunx @biomejs/biome check --write ."
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
+    "playwright": "^1.52.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {

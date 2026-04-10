@@ -1,24 +1,26 @@
 ---
 system: "instagram-scrapper"
 type: index
-version: 1
-lastUpdated: "2026-03-30"
+version: 2
+lastUpdated: "2026-04-10"
 lastUpdatedBy: build-mode
 ---
 
 # Instagram Scrapper
 
 ## Summary
-CLI-based Instagram content scraper that extracts posts, reels, and profile data from Instagram URLs. Supports two scraping approaches: web proxy scraping (picnob.com/piokok.com) and Apify-based scraping. Serves content collection workflows for ad creative research and UGC analysis.
+CLI-based Instagram content scraper that extracts posts, reels, and profile data from Instagram URLs. Uses login-based access to Instagram's private API (primary) with Apify as a fallback. Supports media downloading for offline content analysis. Serves content collection workflows for ad creative research and UGC analysis.
 
 ## Entry Points
 - **Main**: `src/index.ts`
 - **CLI**: `src/cli.ts`
 
 ## Stage Definitions
-1. **url-parsing** — Parse and validate Instagram URLs, extract type (profile/post/reel) and identifier (username/shortcode)
-2. **data-extraction** — Fetch raw data from Instagram via web proxy endpoints or Apify API
-3. **data-normalization** — Transform raw scraped data into structured InstagramPost[] and InstagramProfile objects
+1. **authentication** — Browser-automated login via Playwright, session cookie extraction and persistence
+2. **url-parsing** — Parse and validate Instagram URLs, extract type (profile/post/reel) and identifier (username/shortcode)
+3. **data-extraction** — Fetch structured data from Instagram's private API (`/api/v1/`) using authenticated session
+4. **data-normalization** — Transform raw API responses into structured InstagramPost[] and InstagramProfile objects
+5. **media-download** — Download highest-quality media files (images/videos) from Instagram CDN to local storage
 
 ## Knowledge Files
 - [Domain Knowledge](domain.md) — Domain expertise and tacit knowledge

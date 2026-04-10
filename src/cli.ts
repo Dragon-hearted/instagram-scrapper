@@ -7,8 +7,12 @@ import { parseInstagramUrl } from "./url-parser";
 interface CliArgs {
 	input: string;
 	format: "json" | "summary";
-	method: "web" | "apify";
+	method: "login" | "apify";
 	maxPages: number;
+	download: boolean;
+	outputDir: string;
+	headless: boolean;
+	forceLogin: boolean;
 }
 
 function parseArgs(): CliArgs {
@@ -22,22 +26,36 @@ Arguments:
 
 Options:
   --format <type>    Output format: json (default), summary
-  --method <type>    Scraper method: web (default), apify
+  --method <type>    Scraper method: login (default), apify
   --max-pages <n>    Max pages to paginate (default: 5)
+  --download         Download media files to disk
+  --output-dir <dir> Directory for downloaded media (default: ./downloads)
+  --headless         Run browser login in headless mode
+  --login            Force re-login (clear saved session)
   -h, --help         Show this help message
+
+Environment variables:
+  INSTAGRAM_USERNAME  Required for login method
+  INSTAGRAM_PASSWORD  Required for login method
+  APIFY_API_TOKEN     Required for apify method
 
 Examples:
   bun run src/cli.ts https://instagram.com/p/ABC123/
   bun run src/cli.ts https://instagram.com/reel/XYZ789/
-  bun run src/cli.ts https://instagram.com/username/
+  bun run src/cli.ts username --download --output-dir ./media
   bun run src/cli.ts username --method apify
-  bun run src/cli.ts username --format summary --max-pages 10`);
+  bun run src/cli.ts username --format summary --max-pages 10
+  bun run src/cli.ts username --login --headless`);
 		process.exit(0);
 	}
 
 	let format: "json" | "summary" = "json";
-	let method: "web" | "apify" = "web";
+	let method: "login" | "apify" = "login";
 	let maxPages = 5;
+	let download = false;
+	let outputDir = "./downloads";
+	let headless = false;
+	let forceLogin = false;
 	let input = "";
 
 	for (let i = 0; i < args.length; i++) {
@@ -46,10 +64,22 @@ Examples:
 				format = args[++i] as "json" | "summary";
 				break;
 			case "--method":
-				method = args[++i] as "web" | "apify";
+				method = args[++i] as "login" | "apify";
 				break;
 			case "--max-pages":
 				maxPages = Number.parseInt(args[++i], 10);
+				break;
+			case "--download":
+				download = true;
+				break;
+			case "--output-dir":
+				outputDir = args[++i];
+				break;
+			case "--headless":
+				headless = true;
+				break;
+			case "--login":
+				forceLogin = true;
 				break;
 			default:
 				if (!args[i].startsWith("-")) {
@@ -64,7 +94,7 @@ Examples:
 		process.exit(1);
 	}
 
-	return { input, format, method, maxPages };
+	return { input, format, method, maxPages, download, outputDir, headless, forceLogin };
 }
 
 function formatSummary(result: ScrapeResult): string {
@@ -114,7 +144,8 @@ function formatPostSummary(post: InstagramPost): string {
 }
 
 async function main() {
-	const { input, format, method, maxPages } = parseArgs();
+	const { input, format, method, maxPages, download, outputDir, headless, forceLogin } =
+		parseArgs();
 
 	const parsed = parseInstagramUrl(input);
 	if (!parsed) {
@@ -150,7 +181,15 @@ async function main() {
 				}
 			}
 		} else {
-			const scraper = new InstagramScraper({ maxPages });
+			const scraper = new InstagramScraper(
+				{ maxPages, downloadMedia: download, outputDir },
+				{ headless },
+			);
+
+			if (forceLogin) {
+				await scraper.forceLogin();
+				console.log("Session refreshed.\n");
+			}
 
 			if (parsed.type === "profile") {
 				const result = await scraper.scrapeProfile(parsed.username);

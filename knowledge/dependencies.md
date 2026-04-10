@@ -1,8 +1,8 @@
 ---
 system: "instagram-scrapper"
 type: dependencies
-version: 1
-lastUpdated: "2026-03-30"
+version: 2
+lastUpdated: "2026-04-10"
 lastUpdatedBy: build-mode
 ---
 
@@ -13,7 +13,7 @@ _Required for the system to execute._
 
 | Dependency | Version | Purpose |
 |-----------|---------|---------|
-| cheerio | ^1.0.0 | HTML parsing for web proxy scraping (profile pages) |
+| playwright | ^1.52.0 | Browser automation for Instagram login and session cookie extraction |
 | zod | ^3.23.0 | Runtime validation of scraped data structures |
 
 ## Build Dependencies
@@ -35,6 +35,6 @@ _APIs, models, or services the system depends on._
 
 | Service | Purpose | Failure Impact |
 |---------|---------|---------------|
-| picnob.com | Web proxy for Instagram profile scraping | Primary scraping method unavailable; fall back to Apify |
-| piokok.com | API proxy for Instagram post pagination | Pagination unavailable; only initial page posts returned |
-| Apify API | Alternative scraping via instagram-post-scraper actor | Alternative method unavailable; use web proxy method |
+| Instagram Private API (`/api/v1/`) | Primary data source for profiles, feeds, and media info | System cannot scrape; fall back to Apify |
+| Instagram CDN (`scontent-*.cdninstagram.com`) | Media file hosting for image/video downloads | Media downloads fail; metadata still available |
+| Apify API | Fallback scraping via instagram-post-scraper actor | Fallback method unavailable; login-based method required |
