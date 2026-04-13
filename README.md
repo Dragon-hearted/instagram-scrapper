@@ -46,20 +46,7 @@
 
 ![Pipeline](images/pipeline.svg)
 
-Instagram Scrapper processes data through a multi-stage pipeline:
-
-```mermaid
-flowchart LR
-    Instagram_Scrapper_stage_0[authentication]
-    Instagram_Scrapper_stage_1[url-parsing]
-    Instagram_Scrapper_stage_0 --> Instagram_Scrapper_stage_1
-    Instagram_Scrapper_stage_2[data-extraction]
-    Instagram_Scrapper_stage_1 --> Instagram_Scrapper_stage_2
-    Instagram_Scrapper_stage_3[data-normalization]
-    Instagram_Scrapper_stage_2 --> Instagram_Scrapper_stage_3
-    Instagram_Scrapper_stage_4[media-download]
-    Instagram_Scrapper_stage_3 --> Instagram_Scrapper_stage_4
-```
+Instagram Scrapper processes data through a multi-stage pipeline.
 
 ---
 
