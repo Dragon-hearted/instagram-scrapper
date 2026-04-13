@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎬 Instagram Scrapper
+![Instagram Scrapper](images/hero.svg)
 
 ### Instagram content scraper that extracts posts, reels, and profile data using login-based Instagram Private API access with browser-automated authentication and media downloading
 
@@ -43,6 +43,8 @@
 ---
 
 ## 🏗 Architecture
+
+![Pipeline](images/pipeline.svg)
 
 Instagram Scrapper processes data through a multi-stage pipeline:
 
@@ -115,6 +117,9 @@ instagram-scrapper/
 ├── cookies.json
 ├── downloads
 │   └── DTta61JEWmj_1.mp4
+├── images
+│   ├── hero.svg
+│   └── pipeline.svg
 ├── justfile
 ├── knowledge
 │   ├── acceptance-criteria.md
