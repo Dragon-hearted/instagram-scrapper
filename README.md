@@ -101,9 +101,6 @@ bun run systems/instagram-scrapper/src/cli.ts
 instagram-scrapper/
 ├── README.md
 ├── biome.json
-├── cookies.json
-├── downloads
-│   └── DTta61JEWmj_1.mp4
 ├── images
 │   ├── hero.svg
 │   └── pipeline.svg
@@ -114,59 +111,6 @@ instagram-scrapper/
 │   ├── domain.md
 │   ├── history.md
 │   └── index.md
-├── logs
-│   ├── 17b21e4e-e682-4a98-b052-8c7be36d5dbe
-│   │   ├── chat.json
-│   │   ├── post_tool_use.json
-│   │   ├── pre_tool_use.json
-│   │   └── stop.json
-│   ├── 51e51611-824d-4bd6-98cf-fd8997a9b124
-│   │   ├── post_tool_use.json
-│   │   └── pre_tool_use.json
-│   ├── 77efce5f-eaff-4dfc-a443-2b7f1dd7d54a
-│   │   ├── chat.json
-│   │   ├── post_tool_use.json
-│   │   └── stop.json
-│   ├── 8654e07c-67eb-4b0b-b069-602244930fc7
-│   │   ├── chat.json
-│   │   ├── notification.json
-│   │   ├── post_tool_use.json
-│   │   ├── post_tool_use_failure.json
-│   │   ├── pre_tool_use.json
-│   │   └── stop.json
-│   ├── 86873d53-1b8d-455a-a014-54eeea3696b8
-│   │   ├── chat.json
-│   │   ├── post_tool_use.json
-│   │   ├── pre_tool_use.json
-│   │   └── stop.json
-│   ├── ccfb962d-cf3e-4002-93c4-eb941b3a43a9
-│   │   ├── chat.json
-│   │   ├── post_tool_use.json
-│   │   ├── pre_tool_use.json
-│   │   └── stop.json
-│   ├── f0226b0d-266c-4949-b926-dce6a0ecb219
-│   │   ├── chat.json
-│   │   ├── notification.json
-│   │   ├── post_tool_use.json
-│   │   ├── post_tool_use_failure.json
-│   │   ├── pre_tool_use.json
-│   │   └── stop.json
-│   ├── f2c741b0-bb55-4fcb-8848-451d3716025c
-│   │   ├── chat.json
-│   │   ├── post_tool_use.json
-│   │   ├── pre_tool_use.json
-│   │   └── stop.json
-│   ├── fd009500-a07b-4f7f-b6dc-b98e66e9cd79
-│   │   ├── chat.json
-│   │   ├── notification.json
-│   │   ├── post_tool_use.json
-│   │   ├── post_tool_use_failure.json
-│   │   ├── pre_tool_use.json
-│   │   ├── stop.json
-│   │   ├── subagent_start.json
-│   │   └── subagent_stop.json
-│   ├── session_end.json
-│   └── user_prompt_submit.json
 ├── package.json
 ├── src
 │   ├── apify-scraper.ts
