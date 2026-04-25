@@ -8,3 +8,10 @@ dist/
 .env.*
 !.env.sample
 cookies.json
+
+# Claude Code session data — never commit (private prompts/transcripts)
+.claude/data/
+.claude/scheduled_tasks*
+
+# Downloaded media — never commit (per-client material)
+downloads/
