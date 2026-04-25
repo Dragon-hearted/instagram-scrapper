@@ -2,7 +2,7 @@
 
 ![Instagram Scrapper](images/hero.svg)
 
-### Instagram content scraper that extracts posts, reels, and profile data using login-based Instagram Private API access with browser-automated authentication and media downloading
+### Instagram post, reel, and profile extractor
 
 ![Status](https://img.shields.io/badge/Status-active-brightgreen)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
