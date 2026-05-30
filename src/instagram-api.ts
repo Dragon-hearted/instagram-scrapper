@@ -31,7 +31,11 @@ export class InstagramApiClient {
 
 	async getProfileInfo(
 		username: string,
-	): Promise<{ profile: InstagramProfile; userId: string } | null> {
+	): Promise<{
+		profile: InstagramProfile;
+		userId: string;
+		isPrivate: boolean;
+	} | null> {
 		const url = `${API_BASE}/users/web_profile_info/?username=${encodeURIComponent(username)}`;
 		const data = await this.apiRequest(url);
 		const dataObj = data?.data as Record<string, unknown> | undefined;
@@ -43,6 +47,7 @@ export class InstagramApiClient {
 		const edgeMedia = user.edge_owner_to_timeline_media as Record<string, number> | undefined;
 		const biography = user.biography as string | undefined;
 		const userId = (user.id as string) || user.pk?.toString() || "";
+		const isPrivate = (user.is_private as boolean) ?? false;
 
 		return {
 			profile: {
@@ -68,6 +73,7 @@ export class InstagramApiClient {
 					: null,
 			},
 			userId,
+			isPrivate,
 		};
 	}
 
@@ -125,7 +131,7 @@ export class InstagramApiClient {
 			};
 		}
 
-		const { profile, userId } = profileResult;
+		const { profile, userId, isPrivate } = profileResult;
 		const allPosts: InstagramPost[] = [];
 		const seen = new Set<string>();
 		let nextMaxId: string | undefined;
@@ -148,7 +154,9 @@ export class InstagramApiClient {
 
 		return {
 			profile,
-			accountStatus: "public",
+			// A private/blocked account (no granted access) returns no feed
+			// items but is NOT an empty public profile — surface it distinctly.
+			accountStatus: isPrivate ? "private" : "public",
 			updatedAt: new Date(),
 			posts: allPosts,
 		};
@@ -169,6 +177,9 @@ export class InstagramApiClient {
 		const videoVersions = item.video_versions as VideoVersion[] | undefined;
 		const imageVersions2 = item.image_versions2 as
 			| { candidates: ImageVersion[] }
+			| undefined;
+		const carouselMedia = item.carousel_media as
+			| MediaInfo["carousel_media"]
 			| undefined;
 
 		return {
@@ -191,6 +202,7 @@ export class InstagramApiClient {
 			mediaId: item.pk?.toString() || item.id?.toString() || "",
 			videoVersions: videoVersions || [],
 			imageVersions: imageVersions2?.candidates || [],
+			carouselMedia,
 		};
 	}
 
@@ -217,6 +229,7 @@ export class InstagramApiClient {
 			mediaId: info.pk,
 			videoVersions: info.video_versions || [],
 			imageVersions: info.image_versions2?.candidates || [],
+			carouselMedia: info.carousel_media,
 		};
 	}
 

@@ -60,15 +60,40 @@ Examples:
 
 	for (let i = 0; i < args.length; i++) {
 		switch (args[i]) {
-			case "--format":
-				format = args[++i] as "json" | "summary";
+			case "--format": {
+				const value = args[++i];
+				if (value !== "json" && value !== "summary") {
+					console.error(
+						`Error: Invalid --format "${value ?? ""}". Expected one of: json, summary`,
+					);
+					process.exit(1);
+				}
+				format = value;
 				break;
-			case "--method":
-				method = args[++i] as "login" | "apify";
+			}
+			case "--method": {
+				const value = args[++i];
+				if (value !== "login" && value !== "apify") {
+					console.error(
+						`Error: Invalid --method "${value ?? ""}". Expected one of: login, apify`,
+					);
+					process.exit(1);
+				}
+				method = value;
 				break;
-			case "--max-pages":
-				maxPages = Number.parseInt(args[++i], 10);
+			}
+			case "--max-pages": {
+				const value = args[++i];
+				const parsed = Number(value);
+				if (!Number.isInteger(parsed) || parsed < 1) {
+					console.error(
+						`Error: Invalid --max-pages "${value ?? ""}". Expected a positive integer.`,
+					);
+					process.exit(1);
+				}
+				maxPages = parsed;
 				break;
+			}
 			case "--download":
 				download = true;
 				break;
