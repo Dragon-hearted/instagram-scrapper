@@ -1,0 +1,100 @@
+# systems/instagram-scrapper/knowledge/usage.yaml
+# Verified-against-source recon for the ReadmeEngine rich-rewrite.
+# Authored by recon-instagram-scrapper. Schema: specs Appendix A.
+#
+# Verification status:
+#   - bun install, --help, URL-parse/error paths: EXECUTED & VERIFIED.
+#   - Any command that authenticates to Instagram (profile/post/reel/download)
+#     or to Apify is credential-gated and marked "not executed".
+
+features:
+  - name: "Profile scraping"
+    description: "Paginate a public account's feed via Instagram's private API (/api/v1/feed/user/{id}/), returning a normalized profile (followers, following, posts count, bio) plus a deduplicated InstagramPost[]."
+  - name: "Single post extraction"
+    description: "Resolve a /p/{shortcode}/ URL by converting the base64 shortcode to a numeric media ID and fetching /api/v1/media/{id}/info/ for full metadata."
+  - name: "Reel extraction"
+    description: "Handle /reel/ and /reels/ URLs with the same shortcode→media-info path as posts, surfacing video versions and clips product type."
+  - name: "Browser-driven login"
+    description: "Playwright (Chromium) automates Instagram login: fills credentials with keystroke delays, dismisses cookie-consent and 'Save Login Info'/'Notifications' prompts, waits for 2FA completion (120s), and extracts session cookies."
+  - name: "Session persistence & reuse"
+    description: "Saves session cookies (csrftoken, sessionid, ds_user_id, mid) to ~/.instagram-scrapper/session.json and cookies.json; validates a saved session via an API probe and re-authenticates only when expired."
+  - name: "Apify fallback method"
+    description: "--method apify runs the apify~instagram-post-scraper actor (polls run to completion, then pulls dataset items) as a credential-light alternative when login is unavailable."
+  - name: "Media download to disk"
+    description: "--download fetches the highest-resolution video/image for each post (picked by pixel area), is carousel/album aware (downloads every child), dedupes by base URL, and writes {shortcode}_{index}.{mp4|jpg} to the output dir."
+  - name: "Flexible URL & username parsing"
+    description: "Accepts bare usernames or full profile/post/reel URLs with or without scheme, www, and trailing slash; rejects reserved paths (explore, accounts, stories, direct)."
+  - name: "Output formats"
+    description: "--format json (default, full structured dump) or summary (human-readable profile header + first 10 posts with type, likes, comments)."
+  - name: "Pagination control"
+    description: "--max-pages caps feed pages (33 items/page); stops early when the API reports no more_available."
+  - name: "Account status detection"
+    description: "Distinguishes public, private (no granted feed access), and missing accounts in the scrape result instead of silently returning empty."
+  - name: "Rate-limit & auth resilience"
+    description: "Retries 429/5xx with progressive backoff (3s × attempt, 3 tries); raises descriptive errors on 401/403 (expired session) rather than retrying."
+
+prerequisites:
+  - "Bun v1.0+ — curl -fsSL https://bun.sh/install | bash"
+  - "Playwright Chromium (login method only) — bunx playwright install chromium"
+  - "An Instagram account (login method) or an Apify account + token (apify method)"
+
+configVars:
+  - name: "INSTAGRAM_USERNAME"
+    required: false
+    description: "Instagram account username. Required for the default --method login."
+  - name: "INSTAGRAM_PASSWORD"
+    required: false
+    description: "Instagram account password. Required for the default --method login."
+  - name: "APIFY_API_TOKEN"
+    required: false
+    description: "Apify API token. Required only when using --method apify."
+
+install:
+  - "cd systems/instagram-scrapper"
+  - "bun install"
+  - "bunx playwright install chromium   # only needed for the login method"
+
+usageSteps:
+  - title: "Show all commands and flags"
+    command: "bun run src/cli.ts --help"
+    expected: "Prints usage, options (--format/--method/--max-pages/--download/--output-dir/--headless/--login), env vars, and examples. (verified)"
+  - title: "Scrape a public profile (login method)"
+    command: "INSTAGRAM_USERNAME=you INSTAGRAM_PASSWORD=pass bun run src/cli.ts nasa --max-pages 3"
+    expected: "On first run opens Chromium to log in, persists the session, then prints JSON with profile + paginated posts. requires INSTAGRAM_USERNAME/INSTAGRAM_PASSWORD — not executed."
+  - title: "Scrape a single post"
+    command: "bun run src/cli.ts https://www.instagram.com/p/Cabc123XYZ/"
+    expected: "Prints a single InstagramPost JSON (caption, media URLs, likes, comments). requires Instagram credentials/session — not executed."
+  - title: "Scrape a reel"
+    command: "bun run src/cli.ts https://www.instagram.com/reel/Cxyz789ABC/ --format summary"
+    expected: "Prints a summary line (type VIDEO, owner, likes, comments) for the reel. requires Instagram credentials/session — not executed."
+  - title: "Download media for a profile to disk"
+    command: "bun run src/cli.ts nasa --download --output-dir ./media --max-pages 2"
+    expected: "Writes best-quality media as ./media/{shortcode}_{index}.{mp4|jpg} (carousel-aware, deduped). requires Instagram credentials/session — not executed."
+  - title: "Use the Apify fallback method"
+    command: "APIFY_API_TOKEN=apify_xxx bun run src/cli.ts nasa --method apify"
+    expected: "Runs the apify~instagram-post-scraper actor and prints scraped posts JSON. requires APIFY_API_TOKEN — not executed."
+  - title: "Force a fresh browser login (clear saved session)"
+    command: "INSTAGRAM_USERNAME=you INSTAGRAM_PASSWORD=pass bun run src/cli.ts nasa --login --headless"
+    expected: "Clears the saved session, re-logs in via headless Chromium, prints 'Session refreshed.' then the scrape. requires Instagram credentials — not executed."
+
+commandsReference:
+  - command: "bun run src/cli.ts <url-or-username> [options]"
+    description: "Scrape a profile, post, or reel. Accepts a bare username or a full Instagram URL."
+  - command: "bun run src/cli.ts --help"
+    description: "List all commands, flags, environment variables, and examples."
+  - command: "--format <json|summary>"
+    description: "Output format. json (default) is the full structured dump; summary is human-readable."
+  - command: "--method <login|apify>"
+    description: "Scraper backend. login (default) uses an authenticated browser session; apify uses the Apify actor."
+  - command: "--max-pages <n>"
+    description: "Maximum feed pages to paginate for a profile (default 5, 33 posts/page)."
+  - command: "--download"
+    description: "Download each post's best-quality media to disk."
+  - command: "--output-dir <dir>"
+    description: "Destination directory for downloaded media (default ./downloads)."
+  - command: "--headless"
+    description: "Run the Playwright browser login without a visible window (no 2FA UI)."
+  - command: "--login"
+    description: "Clear the saved session and force a fresh browser login before scraping."
+  - command: "just scrape <target> [args...]"
+    description: "justfile shortcut for the CLI; also: just login, just install-browser, just build, just lint, just check, just test."
