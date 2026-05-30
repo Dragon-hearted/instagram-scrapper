@@ -150,6 +150,23 @@ export class MediaDownloader {
 	}
 
 	private extractMediaFromPost(post: InstagramPost): ExtractedMedia[] {
+		// Carousel/album posts: download every child, not just the cover.
+		// Mirrors the carousel branch of extractMediaUrls().
+		if (post.carouselMedia?.length) {
+			const results: ExtractedMedia[] = [];
+			for (const item of post.carouselMedia) {
+				results.push(
+					...this.extractSingleMedia(
+						item.media_type,
+						item.video_versions,
+						item.image_versions2?.candidates,
+						item.pk || item.id,
+					),
+				);
+			}
+			if (results.length) return results;
+		}
+
 		// If we have rich API data (videoVersions/imageVersions), use it
 		if (post.videoVersions?.length || post.imageVersions?.length) {
 			const results: ExtractedMedia[] = [];
