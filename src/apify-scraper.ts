@@ -1,4 +1,4 @@
-import type { InstagramPost } from "./types";
+import type { ImageVersion, InstagramPost, VideoVersion } from "./types";
 
 const APIFY_BASE_URL = "https://api.apify.com/v2";
 const ACTOR_ID = "apify~instagram-post-scraper";
@@ -92,13 +92,29 @@ export class ApifyInstagramScraper {
 		const caption = item.caption as string | null;
 		const ownerUsername = (item.ownerUsername as string) || "";
 		const ownerId = (item.ownerId as string) || "";
+		const mediaId = (item.id as string) || "";
+		const displayUrl =
+			(item.displayUrl as string) || (item.imageUrl as string) || null;
+		const videoUrl = (item.videoUrl as string) || null;
+		const width = (item.dimensionsWidth as number) || 0;
+		const height = (item.dimensionsHeight as number) || 0;
+
+		// Apify dataset rows are flat (single best URL each). Reconstruct the
+		// version arrays the downloader needs so apify-method posts are
+		// downloadable just like login-method posts.
+		const videoVersions: VideoVersion[] = videoUrl
+			? [{ url: videoUrl, width, height, type: 101 }]
+			: [];
+		const imageVersions: ImageVersion[] = displayUrl
+			? [{ url: displayUrl, width, height }]
+			: [];
 
 		return {
 			shortcode: (item.shortCode as string) || (item.shortcode as string) || "",
-			id: (item.id as string) || "",
+			id: mediaId,
 			caption: caption || null,
-			displayUrl: (item.displayUrl as string) || (item.imageUrl as string) || null,
-			videoUrl: (item.videoUrl as string) || null,
+			displayUrl,
+			videoUrl,
 			mediaType: (item.type as string) === "Video" ? 2 : (item.type as string) === "Sidecar" ? 8 : 1,
 			productType: (item.productType as string) || "feed",
 			likeCount: (item.likesCount as number) || 0,
@@ -108,6 +124,9 @@ export class ApifyInstagramScraper {
 				? Math.floor(new Date(item.timestamp as string).getTime() / 1000)
 				: 0,
 			owner: { username: ownerUsername, pk: ownerId },
+			mediaId,
+			videoVersions,
+			imageVersions,
 		};
 	}
 }

@@ -74,6 +74,12 @@ export interface InstagramPost {
 	mediaId?: string;
 	videoVersions?: VideoVersion[];
 	imageVersions?: ImageVersion[];
+	/**
+	 * Carousel/album children (media_type 8). Each entry mirrors the
+	 * `carousel_media` shape returned by the private API so the downloader's
+	 * carousel-aware extractor can fetch every item, not just the cover.
+	 */
+	carouselMedia?: MediaInfo["carousel_media"];
 }
 
 export interface InstagramProfile {
