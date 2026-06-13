@@ -20,7 +20,7 @@ export class BrowserLogin {
 		this.options = {
 			headless: options?.headless ?? false,
 			cookiesPath: options?.cookiesPath ?? "./cookies.json",
-			timeout: options?.timeout ?? 60_000,
+			timeout: options?.timeout ?? (Number(process.env.IG_LOGIN_TIMEOUT_MS) || 180_000),
 		};
 	}
 
